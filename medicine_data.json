@@ -1,0 +1,16 @@
+
+[
+    {
+      "name": "Paracetamol",
+      "details": "calcium stearate or magnesium stearate, cellulose, docusate sodium and sodium benzoate or sodium lauryl sulfate, starch, hydroxypropyl methylcellulose, propylene glycol, sodium starch glycolate, polyethylene glycol and Red #40.",
+      "hash": "0x0805A750A85784C0E3DD15531f1D00780327c78D",
+      "dosage": "500 mg",
+      "factoryName": "M1",
+      "supplierName": "S1",
+      "distributorName": "D1",
+      "transporterName": "T1",
+      "mfgDate": "2024",
+      "expDate": "2027"
+    }
+  ]
+  

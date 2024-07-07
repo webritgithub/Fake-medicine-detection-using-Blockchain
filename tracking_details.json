@@ -1,0 +1,29 @@
+{
+    "medicines": [
+      {
+        "name": "Paracetamol",
+        "details": "calcium stearate or magnesium stearate, cellulose, docusate sodium and sodium benzoate or sodium lauryl sulfate, starch, hydroxypropyl methylcellulose, propylene glycol, sodium starch glycolate, polyethylene glycol and Red #40.",
+        "dosage": "500 mg",
+        "hash": "0x0805A750A85784C0E3DD15531f1D00780327c78D",
+        "tracking": {
+          "manufacturer": "M1",
+          "supplier": "S1",
+          "transporter": "T1",
+          "distributor": "D1"
+        }
+      },
+      {
+        "name": "Crocin",
+        "details": "Crocin Pain Relief Tab contains paracetamol (650mg) and caffeine (50mg).",
+        "dosage": "500 mg",
+        "hash": "0x1E8e94A15e39119c43a4112DAe18424f7b3c5bF1",
+        "tracking": {
+          "manufacturer": "M2",
+          "supplier": "S2",
+          "transporter": "T2",
+          "distributor": "D2"
+        }
+      }
+    ]
+  }
+  
