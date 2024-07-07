@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login or Sign Up</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffffaf;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-image: url('https://t4.ftcdn.net/jpg/01/01/04/93/360_F_101049394_aFuNnHWlZjKN5X7XjLDLWyclGSEEBBeb.jpg');
+            background-size: cover;
+            color: #ffffff;
+            text-align: center;
+            padding: 100px 0;
+        }
+
+        header h1 {
+            font-size: 36px;
+            font-family: 'Lucida Handwriting';
+            margin-bottom: 20px;
+            color: rgb(22, 59, 59);
+        }
+
+        /* Form Styles */
+        .form-container {
+    background-color: rgba(129, 245, 245, 0.5); /* Adjust the alpha value for transparency */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container label {
+            margin-bottom: 10px;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="password"],
+        .form-container input[type="email"],
+        .form-container input[type="submit"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="password"],
+        .form-container input[type="email"] {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-container input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .form-container input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .form-container .login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .form-container .login-link a {
+            color: #333;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body> 
+    <header>
+        <h1>PharmaGuard</h1>
+    </header>
+
+    <div class="container">
+        <div class="form-container" id="signupFormContainer">
+            <h2>Sign Up</h2>
+            <form id="signupForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+
+                <input type="submit" value="Create Account">
+            </form>
+            <p id="signupMessage"></p>
+            <div class="login-link">
+                Already have an account? <a href="#" id="toggleLogin">Login</a>
+            </div>
+        </div>
+
+        <div class="form-container" id="loginFormContainer" style="display: none;">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="loginEmail">Email Address:</label>
+                <input type="email" id="loginEmail" required>
+
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+
+                <input type="submit" value="Login">
+            </form>
+            <p id="loginMessage"></p>
+            <div class="login-link">
+                Don't have an account yet? <a href="#" id="toggleSignup">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const signupFormContainer = document.getElementById('signupFormContainer');
+        const loginFormContainer = document.getElementById('loginFormContainer');
+        const signupForm = document.getElementById('signupForm');
+        const loginForm = document.getElementById('loginForm');
+        const signupMessage = document.getElementById('signupMessage');
+        const loginMessage = document.getElementById('loginMessage');
+        const toggleLogin = document.getElementById('toggleLogin');
+        const toggleSignup = document.getElementById('toggleSignup');
+
+        toggleLogin.addEventListener('click', function(event) {
+            event.preventDefault();
+            signupFormContainer.style.display = 'none';
+            loginFormContainer.style.display = 'block';
+        });
+
+        toggleSignup.addEventListener('click', function(event) {
+            event.preventDefault();
+            signupFormContainer.style.display = 'block';
+            loginFormContainer.style.display = 'none';
+        });
+
+        signupForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Perform signup logic here (e.g., send data to server, etc.)
+            // For now, just display a message
+            signupMessage.textContent = `Account created successfully for ${name} with email ${email}`;
+        });
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            loginMessage.textContent = 'Login successful!';
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Registry</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+    <style>
+       
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: Arial, sans-serif;
+        background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+    }
+    
+    .container {
+        width: 80%;
+        margin: 0 auto;
+    }
+    
+    header, footer {
+        background-color: black;
+        color: white;
+        padding: 10px 0;
+        text-align: center;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .footer {
+    background-color: #000;
+    padding: 50px 0;
+    color: #fff;
+}
+
+.footer h3 {
+    color: #4a9de1;
+}
+
+.footer p {
+    color: #d3d3d3;
+}
+
+.footer hr {
+    border-color: #777;
+}
+
+.footer .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer .row {
+    margin-bottom: 20px;
+}
+
+.footer a {
+    color: #4a9de1;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #ffc107;
+}
+
+.footer i {
+    color: #ffc107;
+    margin-right: 5px;
+}
+
+    
+    .main {
+        position: relative;
+    }
+    
+    .background {
+        background-image: url('https://t4.ftcdn.net/jpg/01/01/04/93/360_F_101049394_aFuNnHWlZjKN5X7XjLDLWyclGSEEBBeb.jpg'); /* Provide the URL for your background image */
+        background-size: cover;
+        background-position: center;
+        height: 500px; /* Adjust the height as needed */
+        border-bottom-left-radius: 50px; /* Adjust the radius for the curve */
+        border-bottom-right-radius: 50px; /* Adjust the radius for the curve */
+    }
+  
+    .text-overlay h4 {
+        position: absolute;
+        bottom: 290px; /* Adjust the distance from the bottom */
+        left: 30px;
+        color: rgb(10, 79, 95);
+        font-size: 44px; /* Adjust the font size */
+        font-family: Lucida Console;
+    }
+    .text-overlay p {
+        position: absolute;
+        bottom: 190px; /* Adjust the distance from the bottom */
+        left: 30px;
+        color: rgb(12, 49, 142);
+        font-weight: bold;
+        font-size: 30px; /* Adjust the font size */
+        font-family: Garamond; /* Change the font family */    
+    }
+    .text-overlay h5 {
+        position: absolute;
+        bottom: 220px; /* Adjust the distance from the bottom */
+        left: 30px;
+        color: rgb(12, 49, 142);
+        font-weight: bold;
+        font-size: 30px; /* Adjust the font size */
+        font-family: Garamond; /* Change the font family */    
+    }
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 50px 0;
+    }
+    
+    .card {
+        width: calc(40% - 160px); /* Adjust the width of each card */
+        height: 400px;
+        background-color: rgba(255, 255, 255, 0.92);
+        color: white;
+        text-align: center;
+        margin: 20px;
+        padding: 20px;
+        transition: background-color 0.3s ease;
+        background-size: cover;
+        background-position: center;
+        border-radius: 10px;
+    }
+
+    
+    
+            .card.admin {
+                background-image: url('https://t4.ftcdn.net/jpg/02/27/45/09/360_F_227450952_KQCMShHPOPebUXklULsKsROk5AvN6H1H.jpg');
+                /* URL of the admin image */
+            }
+    
+            .card.manufacturer {
+                background-image: url('https://png.pngtree.com/png-clipart/20221203/ourmid/pngtree-blue-factory-icon-or-logo-png-image_6511026.png');
+                /* URL of the manufacturer image */
+            }
+    
+            .card.supplier {
+                background-image: url('https://cdn-icons-png.flaticon.com/512/4237/4237837.png');
+                /* URL of the supplier image */
+            }
+    
+            .card.transporter {
+                background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBrq5BKwrQWGf24-WEDHBwXimvNRPHKUwD6RnaiPh2ykwaURD2nxUCG7m5ZBS2K5KzebQ&usqp=CAU');
+                /* URL of the transporter image */
+            }
+    
+            .card.distributor {
+                background-image: url('https://cdn-icons-png.freepik.com/512/7470/7470302.png');
+                /* URL of the distributor image */
+            }
+    
+            .card.customer {
+                background-image: url('cons.png');
+                /* URL of the customer image */
+            }
+             
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+}
+
+.modal-content {
+    background-color: rgba(211, 118, 12, 0.9); /* Semi-transparent white background */
+    margin: 15% auto;
+    padding: 20px;
+    border: 0px;
+    width: 30%;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add box shadow for depth */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    background-color: #581c10; /* Green */
+    border: none;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 50px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #2d1e06; /* Darker green on hover */
+}
+.sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: rgba(63, 57, 57, 0.8);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+        
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar ul li {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .sidebar ul li:hover {
+            color: #f1f1f1;
+            background-color: rgb(20, 220, 220);
+        }
+        
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            text-decoration: none;
+            color: black;
+            display: block;
+        }
+        
+        .sidebar .close-btn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        /* Close icon styles */
+.close-sidebar {
+    color: #fff; /* Icon color */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px; /* Adjust the size of the icon */
+    cursor: pointer;
+    transition: color 0.3s ease; /* Add a transition effect for color change */
+}
+
+.close-sidebar:hover {
+    color: #ccc; /* Change the color on hover */
+}
+.logo img {
+    width: 200px; /* Adjust the width of the logo */
+    height: 100px; /* Maintain aspect ratio */
+    margin-right: 20px; /* Adjust margin as needed */
+}
+.open-sidebar {
+    width: 200px; /* Adjust the width of the logo */
+    height: 100px; /* Maintain aspect ratio */
+    margin-right: 20px; /* Adjust margin as needed */
+    cursor: pointer; /* Show pointer cursor */
+} 
+    
+       </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="medlogo.png" alt="PharmaGuard Logo">
+        </div>
+        <div class="container">
+            <span class="open-sidebar">&#9776;</span>
+        </div>
+    </header>
+    <nav id="sidebar" class="sidebar">
+        <ul>
+            <li><a href="dashboard.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="index.html" id="logout">Logout</a></li>
+        </ul>
+        <span class="close-sidebar">&times;</span>
+    </nav>
+    <main>
+        <section class="background">
+            <div class="text-overlay">
+                <h4>PharmaGuard</h4><br>
+                <h5>Safeguarding Health</h5>
+                <p>Through Fraudulent Medicine Detection and Verification</p>                
+            </div>
+        </section>
+
+        <section class="cards">
+            <div class="card admin">
+                
+            </div>
+            <div class="card manufacturer">
+               
+            </div>
+            <div class="card supplier">
+               
+            </div>
+            <div class="card transporter">
+              
+            </div>
+            <div class="card distributor">
+               
+            </div>
+            <div class="card customer">
+                
+            </div>
+        </section>
+</main>
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h3><a href="services.html">About Us</a></h3>
+                <p>Learn more about Fake Medicine Blockchain and our mission to combat counterfeit drugs.</p><br>
+            </div>
+            <div class="col-md-6">
+                <h3>Contact Us</h3>
+                <p><i class="fa fa-envelope"></i> Email: info@fakemedblockchain.com<br><br> <i class="fa fa-phone"></i> Phone: 123-456-7890</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <hr><br>
+                <p class="text-muted">&copy; 2024 Fake Medicine Blockchain. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" placeholder="Username" id="username">
+            <input type="text" placeholder="userid" id="password">
+            <button type="submit" id="loginButton">Login</button>
+        </form>
+    </div>
+</div>
+
+    <script>
+    const openSidebarButton = document.querySelector('.open-sidebar');
+        const closeSidebarButton = document.querySelector('.close-sidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        openSidebarButton.addEventListener('click', function() {
+            sidebar.style.width = '200px';
+        });
+
+        closeSidebarButton.addEventListener('click', function() {
+            sidebar.style.width = '0';
+        });
+
+        // Get the admin card
+const adminCard = document.querySelector('.card.admin');
+const supplierCard = document.querySelector('.card.supplier');
+const transporterCard = document.querySelector('.card.transporter');
+const distributorCard = document.querySelector('.card.distributor');
+const manufacturerCard = document.querySelector('.card.manufacturer');
+
+// Add event listeners to display login modal when respective cards are clicked
+supplierCard.addEventListener('click', function() {
+    displayModal('supplier');
+});
+
+transporterCard.addEventListener('click', function() {
+    displayModal('transporter');
+});
+
+distributorCard.addEventListener('click', function() {
+    displayModal('distributor');
+});
+
+manufacturerCard.addEventListener('click', function() {
+    displayModal('manufacturer');
+});
+
+// Add event listener to display login modal when admin card is clicked
+adminCard.addEventListener('click', function() {
+    displayModal('admin');
+});
+
+// Get the modal element
+const modal = document.getElementById('loginModal');
+
+// Get the close button element
+const closeButton = document.querySelector('.close');
+
+// Function to display the modal and store userType in a data attribute
+function displayModal(userType) {
+    modal.style.display = 'block';
+    // Store the userType in a data attribute of the modal for later use
+    modal.setAttribute('data-user-type', userType);
+}
+
+// Function to close the modal
+function closeModal() {
+    modal.style.display = 'none';
+}
+
+// Event listener for the close button
+closeButton.addEventListener('click', function() {
+    closeModal();
+});
+
+// Event listener for outside click to close the modal
+window.addEventListener('click', function(event) {
+    if (event.target === modal) {
+        closeModal();
+    }
+});
+
+// Event listener for form submission
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    // Redirect based on the userType stored in the data attribute
+    switch (modal.getAttribute('data-user-type')) {
+        case 'admin':
+            window.location.href = 'admin.html';
+            break;
+        case 'supplier':
+            window.location.href = 'supplier.html';
+            break;
+        case 'transporter':
+            window.location.href = 'transporter.html';
+            break;
+        case 'distributor':
+            window.location.href = 'distributor.html';
+            break;
+        case 'manufacturer':
+            window.location.href = 'form_page.html';
+            break;
+        default:
+            // Redirect to a default page if userType is not recognized
+            window.location.href = 'default.html';
+            break;
+    }
+});
+// Get the consumer card
+const consumerCard = document.querySelector('.card.customer');
+
+// Add event listener to display login modal when consumer card is clicked
+consumerCard.addEventListener('click', function() {
+    window.location.href = 'customer.html';
+});
+
+
+        // Check if MetaMask is installed and if the web3 object is available
+if (typeof window.ethereum !== 'undefined' && typeof window.ethereum.isMetaMask !== 'undefined') {
+    console.log('MetaMask is installed');
+    window.web3 = new Web3(window.ethereum);
+} else {
+    console.log('MetaMask is not installed');
+    // Handle the case where MetaMask is not installed
+}
+
+        // Replace with your contract address and ABI
+        const contractAddress = '0x7908c2fb141C59a0d569dc9cd8abE94fc75aD329';
+        const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_manufacturerID",
+				"type": "uint256"
+			}
+		],
+		"name": "addMedicine",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "manufacturerAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "manufacturerID",
+				"type": "uint256"
+			}
+		],
+		"name": "MedicineAdded",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getMedicineDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "manufacturerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "manufacturerID",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "medicines",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "manufacturerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "manufacturerID",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalMedicines",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+async function addMedicine() {
+        if (typeof window.ethereum === 'undefined') {
+            alert('MetaMask is not installed!');
+            return;
+        }
+
+        try {
+            // Request account access from MetaMask
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const userAddress = accounts[0];
+
+            // Get user inputs
+            const name = $('#name').val();
+            const details = $('#details').val();
+            const manufacturerID = $('#manufacturerID').val();
+
+            // Initialize contract instance
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+            // Call the addMedicine function in the contract with user inputs
+            await contract.methods.addMedicine(name, details, manufacturerID).send({ from: userAddress });
+
+            // Provide feedback to the user
+            alert('Medicine added successfully!');
+        } catch (error) {
+            console.error('Error adding medicine:', error);
+            alert('Failed to add medicine!');
+        }
+    }
+    async function getAllMedicines() {
+            try {
+                // Initialize contract instance
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                // Get the total number of medicines
+                const totalMedicines = await contract.methods.totalMedicines().call();
+
+                // Display all medicines
+                let medicineListHtml = '<h2>All Medicines</h2>';
+                for (let i = 1; i <= totalMedicines; i++) {
+                    const medicine = await contract.methods.getMedicineDetails(i).call();
+                    medicineListHtml += `
+                        <div>
+                            <p><strong>Name:</strong> ${medicine.name}</p>
+                            <p><strong>Details:</strong> ${medicine.details}</p>
+                            <p><strong>Manufacturer ID:</strong> ${medicine.manufacturerID}</p>
+                            <p><strong>Manufacturer Address:</strong> ${medicine.manufacturerAddress}</p>
+                        </div>
+                        <hr>
+                    `;
+                }
+
+                // Update the HTML content with the medicine list
+                $('#medicineList').html(medicineListHtml);
+            } catch (error) {
+                console.error('Error fetching medicines:', error);
+                alert('Failed to fetch medicines!');
+            }
+        }
+    </script>
+</body>
+</html>

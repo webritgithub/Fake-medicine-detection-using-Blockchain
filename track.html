@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Tracking Interface</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <script type="text/javascript">
+        // Initialize Web3
+        if (typeof window.ethereum !== 'undefined') {
+            window.web3 = new Web3(window.ethereum);
+            window.ethereum.enable().then(function(accounts) {
+                web3.eth.defaultAccount = accounts[0];
+            });
+        } else {
+            console.error('Web3 is not available!');
+        }
+
+        // Contract address
+        const contractAddress = '0xB0E62A6fEFf03E91B68112A9d04b8884bf3371cd'; // Replace with the actual contract address
+
+        // Contract ABI
+        const contractAbi = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_hash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_manufacturer",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_supplier",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_transporter",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_distributor",
+				"type": "string"
+			}
+		],
+		"name": "setMedicineDetails",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_hash",
+				"type": "string"
+			}
+		],
+		"name": "getMedicineDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "medicineDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "manufacturer",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "supplier",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "transporter",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "distributor",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        // Contract instance
+        const contract = new web3.eth.Contract(contractAbi, contractAddress);
+
+        // Function to track medicine based on hash code
+        async function trackMedicine() {
+            const hashCode = document.getElementById('hashCode').value;
+
+            try {
+                // Fetch medicine details from JSON file based on hash code
+                const response = await fetch('tracking_details.json'); // Assuming the JSON file is named medicines.json
+                const data = await response.json();
+
+                // Find medicine details based on hash code
+                const medicine = data.medicines.find(m => m.hash === hashCode);
+
+                if (medicine) {
+                    // Display tracking information
+                    document.getElementById('manufacturer').innerText = medicine.tracking.manufacturer;
+                    document.getElementById('supplier').innerText = medicine.tracking.supplier;
+                    document.getElementById('transporter').innerText = medicine.tracking.transporter;
+                    document.getElementById('distributor').innerText = medicine.tracking.distributor;
+                } else {
+                    alert('No medicine found with the provided hash code.');
+                }
+            } catch (error) {
+                console.error('Error fetching medicine details:', error);
+                alert('Error fetching medicine details. Please try again.');
+            }
+        }
+    </script>
+	<style>
+	 body {
+		font-family: Arial, sans-serif;
+		background-color: #f4f4f4;
+		margin: 0;
+		padding: 0;
+	}
+
+	h1 {
+		text-align: center;
+		color: #333;
+		margin-top: 20px;
+	}
+
+	.container {
+		max-width: 600px;
+		margin: 20px auto;
+		padding: 20px;
+		background-color: #fff;
+		border-radius: 10px;
+		box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+	}
+
+	label {
+		font-weight: bold;
+		display: block;
+		margin-bottom: 5px;
+		color: #555;
+	}
+
+	input[type="text"] {
+		width: 100%;
+		padding: 10px;
+		margin-bottom: 10px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		box-sizing: border-box;
+	}
+
+	button {
+		background-color: #007bff;
+		color: #fff;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 5px;
+		cursor: pointer;
+		transition: background-color 0.3s ease;
+	}
+
+	button:hover {
+		background-color: #0056b3;
+	}
+
+	hr {
+		border: none;
+		border-top: 1px solid #ccc;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+
+	h3 {
+		margin-top: 0;
+		color: #333;
+	}
+
+	p {
+		margin: 0;
+		color: #555;
+	}
+
+	strong {
+		color: #333;
+	}
+	</style>
+</head>
+<body>
+    <h1>Medicine Tracking Interface</h1>
+    <div>
+        <label for="hashCode">Enter Hash Code:</label>
+        <input type="text" id="hashCode">
+    </div>
+    <button onclick="trackMedicine()">Track Medicine</button>
+    <hr>
+    <div>
+        <h3>Medicine Details:</h3>
+        <p><strong>Manufacturer:</strong> <span id="manufacturer"></span></p>
+        <p><strong>Supplier:</strong> <span id="supplier"></span></p>
+        <p><strong>Transporter:</strong> <span id="transporter"></span></p>
+        <p><strong>Distributor:</strong> <span id="distributor"></span></p>
+    </div>
+</body>
+</html>

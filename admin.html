@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+        }
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+	
+}
+
+.manufacturer-info, .supplier-info, .distributor-info, .transporter-info {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.manufacturer-info:hover, .supplier-info:hover, .distributor-info:hover, .transporter-info:hover {
+    transform: scale(1.1);
+}
+
+.manufacturer-info p, .supplier-info p, .distributor-info p, .transporter-info p {
+    margin: 5px 0;
+}
+
+/* Colors for different card bodies */
+.manufacturer-info {
+    background-image: linear-gradient(to top, #e6b980 0%, #eacda3 100%);
+}
+
+.supplier-info {
+    background-image: linear-gradient(60deg, #abecd6 0%, #fbed96 100%);
+}
+
+.distributor-info {
+    background-image: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+}
+
+.transporter-info {
+	background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+}
+footer {
+        background-color: black;
+        color: white;
+        padding: 10px 0;
+        text-align: center;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .footer {
+    background-color: #000;
+    padding: 50px 0;
+    color: #fff;
+}
+
+.footer h3 {
+    color: #4a9de1;
+}
+
+.footer p {
+    color: #d3d3d3;
+}
+
+.footer hr {
+    border-color: #777;
+}
+
+.footer .containers {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer .row {
+    margin-bottom: 20px;
+}
+
+.footer a {
+    color: #4a9de1;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #ffc107;
+}
+
+.footer i {
+    color: #ffc107;
+    margin-right: 5px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manufacturer Information</h1>
+        <div id="manufacturerList"></div>
+        
+        <h1>Distributor Information</h1>
+        <div id="distributorList"></div>
+        
+        <h1>Supplier Information</h1>
+        <div id="supplierList"></div>
+        
+        <h1>Transporter Information</h1>
+        <div id="transporterList"></div>
+    </div>
+	<footer class="footer">
+        <div class="containers">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3><a href="services.html">About Us</a></h3>
+                    <p>Learn more about Fake Medicine Blockchain and our mission to combat counterfeit drugs.</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>Contact Us</h3>
+                    <p><i class="fa fa-envelope"></i> Email: info@fakemedblockchain.com<br><br> <i class="fa fa-phone"></i> Phone: 123-456-7890</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                    <p class="text-muted">&copy; 2024 Fake Medicine Blockchain. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check if web3 is available
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('Web3 is available!');
+            window.web3 = new Web3(window.ethereum);
+        } else {
+            console.log('Web3 is not available!');
+            // Handle the case where Web3 is not available
+        }
+
+        // Define contract addresses and ABIs
+        const manufacturerContractAddress = '0x8b891fa9d923078A2Fc6448F9d08A99a30CAbFc6';
+        const manufacturerContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_medicineID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_factoryName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_dosage",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_mfgDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_expDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_blockAddress",
+				"type": "address"
+			}
+		],
+		"name": "addMedicine",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteMedicine",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "medicineID",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "manufacturer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "factoryName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dosage",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "mfgDate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "expDate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "blockAddress",
+				"type": "address"
+			}
+		],
+		"name": "MedicineAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "MedicineDeleted",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getAllMedicines",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "details",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "medicineID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "manufacturer",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "blockNumber",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "factoryName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "dosage",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "mfgDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "expDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "blockAddress",
+						"type": "address"
+					}
+				],
+				"internalType": "struct MedicineRegistry.Medicine[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "medicines",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "medicineID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "manufacturer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "factoryName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dosage",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "mfgDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "expDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "blockAddress",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalMedicines",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        const distributorContractAddress = '0xba854e6233Af7F91d63C6276E7E8eca8517a7cd3'; // Replace with distributor contract address
+        const distributorContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_distributorID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_distributorAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_registrationDate",
+				"type": "uint256"
+			}
+		],
+		"name": "addDistributor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteDistributor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "distributorID",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "distributorAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "DistributorAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "DistributorDeleted",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "distributors",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "distributorID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "distributorAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllDistributors",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "details",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "distributorID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "distributorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "registrationDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "blockNumber",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct DistributorRegistry.Distributor[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalDistributors",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        const supplierContractAddress = '0xFd1C7D35Bb4c50F4340e410F630Eb66B1D6E23b6'; // Replace with supplier contract address
+        const supplierContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_supplierID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_supplierAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_registrationDate",
+				"type": "uint256"
+			}
+		],
+		"name": "addSupplier",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteSupplier",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "supplierID",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "supplierAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "SupplierAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "SupplierDeleted",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getAllSuppliers",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "details",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "supplierID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "supplierAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "registrationDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "blockNumber",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct SupplierRegistry.Supplier[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "suppliers",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "supplierID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "supplierAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSuppliers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        const transporterContractAddress = '0xaEc512Db7623Ee5dbF55d977c4179060683F9ED4'; // Replace with transporter contract address
+        const transporterContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_transporterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_transporterAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_registrationDate",
+				"type": "uint256"
+			}
+		],
+		"name": "addTransporter",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteTransporter",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllTransporters",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "details",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "transporterID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "transporterAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "registrationDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "blockNumber",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct TransporterRegistry.Transporter[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalTransporters",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "transporters",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "transporterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "transporterAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        // Initialize contract instances
+        const manufacturerContract = new web3.eth.Contract(manufacturerContractABI, manufacturerContractAddress);
+        const distributorContract = new web3.eth.Contract(distributorContractABI, distributorContractAddress);
+        const supplierContract = new web3.eth.Contract(supplierContractABI, supplierContractAddress);
+        const transporterContract = new web3.eth.Contract(transporterContractABI, transporterContractAddress);
+
+		async function displayInfo() {
+            await displayManufacturerInfo();
+            await displayDistributorInfo();
+            await displaySupplierInfo();
+            await displayTransporterInfo();
+        }
+
+		async function displayManufacturerInfo() {
+    const totalMedicines = await manufacturerContract.methods.totalMedicines().call();
+    let manufacturerListHtml = '';
+
+    for (let i = 1; i <= totalMedicines; i++) {
+        const medicine = await manufacturerContract.methods.medicines(i).call();
+        manufacturerListHtml += `
+            <div class="manufacturer-info">
+                <p><strong>Name:</strong> ${medicine.name}</p>
+                <p><strong>Details:</strong> ${medicine.details}</p>
+                <p><strong>Medicine ID:</strong> ${medicine.medicineID}</p>
+                <p><strong>Manufacturer:</strong> ${medicine.manufacturer}</p>
+                <p><strong>Block Number:</strong> ${medicine.blockNumber}</p>
+                <p><strong>Factory Name:</strong> ${medicine.factoryName}</p>
+                <p><strong>Dosage:</strong> ${medicine.dosage}</p>
+                <p><strong>Manufacture Date:</strong> ${medicine.mfgDate}</p>
+                <p><strong>Expiry Date:</strong> ${medicine.expDate}</p>
+                <p><strong>Block Address:</strong> ${medicine.blockAddress}</p>
+            </div>
+        `;
+    }
+
+    document.getElementById("manufacturerList").innerHTML = manufacturerListHtml;
+}
+        
+
+        async function displayDistributorInfo() {
+    const totalDistributors = await distributorContract.methods.totalDistributors().call();
+    let distributorListHtml = '';
+
+    for (let i = 1; i <= totalDistributors; i++) {
+        const distributor = await distributorContract.methods.distributors(i).call();
+        distributorListHtml += `
+            <div class="distributor-info">
+                <p><strong>Name:</strong> ${distributor.name}</p>
+                <p><strong>Details:</strong> ${distributor.details}</p>
+                <p><strong>Distributor ID:</strong> ${distributor.distributorID}</p>
+                <p><strong>Distributor Address:</strong> ${distributor.distributorAddress}</p>
+                <p><strong>Registration Date:</strong> ${distributor.registrationDate}</p>
+            </div>
+        `;
+    }
+
+    document.getElementById("distributorList").innerHTML = distributorListHtml;
+}
+
+async function displaySupplierInfo() {
+    const totalSuppliers = await supplierContract.methods.totalSuppliers().call();
+    let supplierListHtml = '';
+
+    for (let i = 1; i <= totalSuppliers; i++) {
+        const supplier = await supplierContract.methods.suppliers(i).call();
+        supplierListHtml += `
+            <div class="supplier-info">
+                <p><strong>Name:</strong> ${supplier.name}</p>
+                <p><strong>Details:</strong> ${supplier.details}</p>
+                <p><strong>Supplier ID:</strong> ${supplier.supplierID}</p>
+                <p><strong>Supplier Address:</strong> ${supplier.supplierAddress}</p>
+                <p><strong>Registration Date:</strong> ${supplier.registrationDate}</p>
+            </div>
+        `;
+    }
+
+    document.getElementById("supplierList").innerHTML = supplierListHtml;
+}
+
+async function displayTransporterInfo() {
+    const totalTransporters = await transporterContract.methods.totalTransporters().call();
+    let transporterListHtml = '';
+
+    for (let i = 1; i <= totalTransporters; i++) {
+        const transporter = await transporterContract.methods.transporters(i).call();
+        transporterListHtml += `
+            <div class="transporter-info">
+                <p><strong>Name:</strong> ${transporter.name}</p>
+                <p><strong>Details:</strong> ${transporter.details}</p>
+                <p><strong>Transporter ID:</strong> ${transporter.transporterID}</p>
+                <p><strong>Transporter Address:</strong> ${transporter.transporterAddress}</p>
+                <p><strong>Registration Date:</strong> ${transporter.registrationDate}</p>
+            </div>
+        `;
+    }
+
+    document.getElementById("transporterList").innerHTML = transporterListHtml;
+}
+
+       
+
+        // Call functions to display information when the page loads
+        displayManufacturerInfo();
+        displayDistributorInfo();
+        displaySupplierInfo();
+        displayTransporterInfo();
+    </script>
+</body>
+</html>

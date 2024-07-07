@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer Interface</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script> <!-- Add the QR code library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #authenticityResult {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        a {
+            text-decoration: none; /* Remove underline */
+            color: #007bff; /* Set text color */
+            font-weight: bold; /* Make text bold */
+            transition: color 0.3s ease; /* Smooth color transition */
+            display: inline-block; /* Display as block element */
+            padding: 10px 20px; /* Add padding */
+            border: 2px solid #007bff; /* Add border */
+            border-radius: 5px; /* Add border radius */
+            background-color: transparent; /* Transparent background */
+            text-align: center; /* Center text */
+            cursor: pointer; /* Change cursor on hover */
+        }
+
+        /* Change color on hover */
+        a:hover {
+            color: #0056b3; /* Darker color */
+            border-color: #0056b3; /* Darker border color */
+        }
+        .customFileInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Style the file input button */
+input[type="file"]::-webkit-file-upload-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #45a049;
+}
+
+/* Firefox */
+input[type="file"]::-moz-focus-inner {
+  border: 0;
+}
+
+/* Internet Explorer */
+input[type="file"]::-ms-browse {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.footer {
+    background-color: #000;
+    color: #fff;
+	padding: 10px 0;
+    text-align: center;
+    margin-top: 90px;
+}
+
+    
+
+.footer h3 {
+    color: #4a9de1;
+}
+
+.footer p {
+    color: #d3d3d3;
+}
+
+.footer hr {
+    border-color: #777;
+}
+
+.footer .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer .row {
+    margin-bottom: 20px;
+}
+
+.footer a {
+    color: #4a9de1;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #ffc107;
+}
+
+.footer i {
+    color: #ffc107;
+    margin-right: 5px;
+}
+
+
+
+    </style>
+</head>
+<body>
+    <h1>Verify Medicine Authenticity</h1>
+    <div>
+        <label for="medicineName">Medicine Name:</label>
+        <input type="text" id="medicineName">
+    </div>
+    <div>
+        <label for="details">Medicine Details:</label>
+        <textarea id="details"></textarea>
+        <button onclick="addMedicine()">Add Medicine</button>
+    </div>
+    <div>
+        <label for="hash">Generated Hash:</label>
+        <textarea id="hash" readonly></textarea>
+    </div>
+    <div>
+        <button onclick="generateHash()">Generate Hash</button>
+    </div>
+    <div>
+        <label for="enteredHash">Enter Hash for Verification:</label>
+        <input type="text" id="enteredHash">
+        <label for="uploadedQrCode">Upload QR Code Image:</label> <!-- Add label for QR code upload -->
+        <input type="file" id="uploadedQrCode" accept="image/*" onchange="decodeQRCode(this)"> <!-- Trigger decodeQRCode function onchange -->
+        <button onclick="verifyAuthenticity()">Verify Authenticity</button>
+		<div id="qrCodeContent"></div>
+
+    </div>
+    <div id="authenticityResult"></div>
+    <a href="track.html">Copy the hash code and Track Medicine</a>
+    <footer class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<h3><a href="services.html">About Us</a></h3>
+					<p>Learn more about Fake Medicine Blockchain and our mission to combat counterfeit drugs.</p>
+				</div>
+				<div class="col-md-6">
+					<h3>Contact Us</h3>
+					<p><i class="fa fa-envelope"></i> Email: info@fakemedblockchain.com<br><br> <i class="fa fa-phone"></i> Phone: 123-456-7890</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<hr><br>
+					<p class="text-muted">&copy; 2024 Fake Medicine Blockchain. All rights reserved.</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+    <script>
+        // Check if web3 is available
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('Web3 is available!');
+            window.web3 = new Web3(window.ethereum);
+            // Request account access if needed
+            window.ethereum.enable().then(function(accounts) {
+                // Set the default account to the first account returned by the provider
+                web3.eth.defaultAccount = accounts[0];
+            });
+        } else {
+            console.log('Web3 is not available!');
+            // Handle the case where Web3 is not available
+        }
+
+        // Initialize the contract instance
+        const contractAddress = '0xfeE8a8c73A03247955dA0d53C394ed2568AF4410';
+        const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			}
+		],
+		"name": "addMedicine",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "generateHash",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "hash",
+				"type": "string"
+			}
+		],
+		"name": "HashGenerated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "hash",
+				"type": "string"
+			}
+		],
+		"name": "MedicineAdded",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "medicines",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "hash",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_hash",
+				"type": "string"
+			}
+		],
+		"name": "verifyAuthenticity",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Function to add medicine details
+        async function addMedicine() {
+            const medicineName = document.getElementById('medicineName').value;
+            const details = document.getElementById('details').value;
+            try {
+                await contract.methods.addMedicine(medicineName, details).send({ from: web3.eth.defaultAccount });
+                alert('Medicine added successfully!');
+            } catch (error) {
+                console.error('Error adding medicine:', error);
+                alert('Error adding medicine. Please try again.');
+            }
+        }
+
+        // Function to generate hash for medicine details
+        async function generateHash() {
+            const medicineName = document.getElementById('medicineName').value;
+            const details = document.getElementById('details').value;
+            
+            // Read data from JSON file
+            const response = await fetch('medicine_data.json');
+            const data = await response.json();
+            
+            // Find the medicine data from JSON
+            const medicineData = data.find(medicine => medicine.name === medicineName && medicine.details === details);
+            if (medicineData) {
+                document.getElementById('hash').value = medicineData.hash;
+            } else {
+                alert('Medicine data not found in JSON file.');
+            }
+        }
+        
+        async function decodeQRCode(input) {
+            const file = input.files[0];
+            
+            try {
+                const qrCodeData = await readQRCodeFromFile(file);
+                document.getElementById('qrCodeContent').textContent = qrCodeData; // Display the QR code content
+            } catch (error) {
+                console.error('Error decoding QR code:', error);
+                document.getElementById('qrCodeContent').textContent = 'Error decoding QR code. Please try again.';
+            }
+        }
+
+        function readQRCodeFromFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const imageData = await loadImageData(event.target.result);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (code) {
+                            resolve(code.data);
+                        } else {
+                            reject(new Error('QR code not found or could not be decoded.'));
+                        }
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadImageData(dataURL) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    resolve(context.getImageData(0, 0, img.width, img.height));
+                };
+                img.onerror = (error) => reject(error);
+                img.src = dataURL;
+            });
+        }
+		async function verifyAuthenticity() {
+    const medicineName = document.getElementById('medicineName').value;
+    const enteredHash = document.getElementById('enteredHash').value;
+    const qrCodeContent = document.getElementById('uploadedQrCode').textContent; // Get the QR code content
+
+    // Read data from JSON file
+    const response = await fetch('medicine_data.json');
+    const data = await response.json();
+
+    // Find the medicine data from JSON
+    const medicineData = data.find(medicine => medicine.name === medicineName);
+
+    if (medicineData) {
+        if (medicineData.hash === enteredHash) { // Check if both hash and QR code content match
+            document.getElementById('authenticityResult').innerText = 'Medicine is genuine.';
+        } else {
+            document.getElementById('authenticityResult').innerText = 'Medicine is fake.';
+        }
+    } else {
+        alert('Medicine data not found in JSON file.');
+    }
+}
+
+    </script>
+</body>
+</html>

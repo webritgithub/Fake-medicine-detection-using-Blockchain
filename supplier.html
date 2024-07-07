@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Registry</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 40px 0;
+            font-size: 36px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100% - 40px);
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            display: block;
+            width: calc(100% - 40px);
+            padding: 12px;
+            margin: 20px auto;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #supplierList {
+            margin-top: 40px;
+            padding: 20px;
+			background-image: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #supplierList div {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.3s;
+        }
+
+        #supplierList div:last-child {
+            border-bottom: none;
+        }
+
+        #supplierList div:hover {
+            background-color: #dcc360;
+            cursor: pointer;
+        }
+
+        #supplierList div p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+		.footer {
+    background-color: #000;
+    color: #fff;
+	padding: 10px 0;
+    text-align: center;
+    margin-top: 90px;
+}
+
+    
+
+.footer h3 {
+    color: #4a9de1;
+}
+
+.footer p {
+    color: #d3d3d3;
+}
+
+.footer hr {
+    border-color: #777;
+}
+
+.footer .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer .row {
+    margin-bottom: 20px;
+}
+
+.footer a {
+    color: #4a9de1;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: #ffc107;
+}
+
+.footer i {
+    color: #ffc107;
+    margin-right: 5px;
+}
+
+    </style>
+</head>
+<body>
+    <h1>Supplier Registry</h1>
+    <label for="name">Supplier Name:</label>
+    <input type="text" id="name" placeholder="Enter supplier name"><br><br>
+    <label for="details">Supplier Details:</label>
+    <input type="text" id="details" placeholder="Enter supplier details"><br><br>
+    <label for="supplierID">Supplier ID:</label>
+    <input type="number" id="supplierID" placeholder="Enter supplier ID"><br><br>
+    <label for="supplierAddress">Supplier Address:</label>
+    <input type="text" id="supplierAddress" placeholder="Enter supplier address"><br><br>
+    <label for="registrationDate">Registration Date:</label>
+    <input type="number" id="registrationDate" placeholder="Enter registration date"><br><br>
+    <button onclick="registerSupplier()">Register Supplier</button>
+    <button onclick="getAllSuppliers()">Get All Suppliers</button>
+    <div id="supplierList"></div>
+	<footer class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<h3><a href="services.html">About Us</a></h3>
+					<p>Learn more about Fake Medicine Blockchain and our mission to combat counterfeit drugs.</p>
+				</div>
+				<div class="col-md-6">
+					<h3>Contact Us</h3>
+					<p><i class="fa fa-envelope"></i> Email: info@fakemedblockchain.com<br><br> <i class="fa fa-phone"></i> Phone: 123-456-7890</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<hr><br>
+					<p class="text-muted">&copy; 2024 Fake Medicine Blockchain. All rights reserved.</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+    <script>
+        // Check if web3 is available
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('Web3 is available!');
+            window.web3 = new Web3(window.ethereum);
+        } else {
+            console.log('Web3 is not available!');
+            // Handle the case where Web3 is not available
+        }
+
+        // Define the contract address and ABI
+        const contractAddress = '0xFd1C7D35Bb4c50F4340e410F630Eb66B1D6E23b6';
+        const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_supplierID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_supplierAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_registrationDate",
+				"type": "uint256"
+			}
+		],
+		"name": "addSupplier",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteSupplier",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "supplierID",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "supplierAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "SupplierAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "SupplierDeleted",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getAllSuppliers",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "details",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "supplierID",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "supplierAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "registrationDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "blockNumber",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct SupplierRegistry.Supplier[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "suppliers",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "supplierID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "supplierAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "registrationDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "blockNumber",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSuppliers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        // Initialize the contract instance
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Function to register a new supplier
+        async function registerSupplier() {
+            const name = document.getElementById("name").value;
+            const details = document.getElementById("details").value;
+            const supplierID = document.getElementById("supplierID").value;
+            const supplierAddress = document.getElementById("supplierAddress").value;
+            const registrationDate = document.getElementById("registrationDate").value; // Convert to Unix timestamp
+
+            // Call the addSupplier function in the smart contract
+            await contract.methods.addSupplier(name, details, supplierID, supplierAddress, registrationDate).send({ from: ethereum.selectedAddress });
+
+            // Provide feedback to the user
+            alert('Supplier registered successfully!');
+        }
+
+        // Function to retrieve all suppliers
+        async function getAllSuppliers() {
+            const totalSuppliers = await contract.methods.totalSuppliers().call();
+            let supplierListHtml = '<h2>All Suppliers</h2>';
+            for (let i = 1; i <= totalSuppliers; i++) {
+                const supplier = await contract.methods.suppliers(i).call();
+                supplierListHtml += `
+                    <div>
+                        <p><strong>Name:</strong> ${supplier.name}</p>
+                        <p><strong>Details:</strong> ${supplier.details}</p>
+                        <p><strong>Supplier ID:</strong> ${supplier.supplierID}</p>
+                        <p><strong>Supplier Address:</strong> ${supplier.supplierAddress}</p>
+                        <p><strong>Registration Date:</strong> ${supplier.registrationDate}</p>
+                    </div>
+                    <hr>
+                `;
+            }
+            document.getElementById("supplierList").innerHTML = supplierListHtml;
+        }
+    </script>
+</body>
+</html>
